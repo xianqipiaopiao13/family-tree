@@ -138,8 +138,11 @@ body{font-family:'Noto Serif SC','PingFang SC','Microsoft YaHei',sans-serif;back
 .page{display:none;padding:16px;max-width:800px;margin:0 auto;animation:fadeIn .25s ease}
 .page.active{display:block}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.hero{text-align:center;padding:32px 18px 24px;background:#fff;
-  border-radius:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.hero{text-align:center;padding:32px 18px 24px;background:#fff center/cover;
+  border-radius:16px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);position:relative;overflow:hidden}
+.hero.has-hero-bg .hero-title,.hero.has-hero-bg .hero-sub,.hero.has-hero-bg .hero-divider,.hero.has-hero-bg .hero-stats{position:relative;z-index:1}
+.hero.has-hero-bg::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.75);z-index:0}
+.hero.has-hero-bg{background-color:#f5f0e8}
 .hero-title{font-size:1.8rem;color:var(--primary);letter-spacing:4px;margin-bottom:6px;font-weight:bold}
 .hero-sub{font-size:.88rem;color:var(--text-light);letter-spacing:1px;margin-bottom:16px}
 .hero-divider{width:60px;height:2px;background:var(--accent);margin:0 auto 14px;border-radius:1px}
@@ -589,6 +592,12 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
           <img loading="lazy" decoding="async" id="bg-thumb-stories" style="display: block;" src="images/img_013.jpg"><span class="bg-placeholder" id="bg-placeholder-stories" style="display: none;">📷<br>故事</span>
         </div>
         <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();clearBgImage('stories')" style="font-size:.65rem;margin-top:4px">清除</button>
+      </div>
+      <div class="bg-picker" onclick="pickBgImage('hero')">
+        <div class="bg-preview" id="bg-preview-hero">
+          <img loading="lazy" decoding="async" id="bg-thumb-hero" style="display: none;" src=""><span class="bg-placeholder" id="bg-placeholder-hero">📷<br>顶部卡片</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();clearBgImage('hero')" style="font-size:.65rem;margin-top:4px">清除</button>
       </div>
     </div>
     <input type="file" id="bg-file-input" accept="image/*" style="display:none" onchange="onBgFileSelected(event)">
@@ -1259,6 +1268,15 @@ function injectPageBgStyles(html, configObj) {
     if (idx === -1) continue;
     var styleStr = ' style="background-image:url(\'' + url + '\');background-size:cover;background-position:center"';
     html = html.substring(0, idx + tagPattern.length) + styleStr + html.substring(idx + tagPattern.length);
+  }
+  // Hero card background
+  if (configObj.bgHero) {
+    var heroTag = 'class="hero';
+    var heroIdx = html.indexOf(heroTag);
+    if (heroIdx !== -1) {
+      var styleStr2 = ' style="background-image:url(\'' + configObj.bgHero + '\')"';
+      html = html.substring(0, heroIdx + heroTag.length) + styleStr2 + html.substring(heroIdx + heroTag.length);
+    }
   }
   return html;
 }
@@ -1958,6 +1976,7 @@ function loadConfigForm() {
   document.getElementById('cfg-gen-base').value = config.genBase||'1';
   updateBgThumb('home'); updateBgThumb('tree');
   updateBgThumb('members'); updateBgThumb('stories');
+  updateBgThumb('hero');
   document.getElementById('cfg-motto').value = config.motto||'家族是我们共同的根，无论走到哪里，血脉相连，情义永存。愿子孙后代铭记先祖恩德，传承家风，光耀门楣。';
 }
 function saveConfig() {
@@ -1971,6 +1990,7 @@ function saveConfig() {
     bgTree: config.bgTree||'',
     bgMembers: config.bgMembers||'',
     bgStories: config.bgStories||'',
+    bgHero: config.bgHero||'',
     motto: document.getElementById('cfg-motto').value,
     selfId: config.selfId || null
   };
@@ -2027,6 +2047,17 @@ function applyPageBg(pageId, bgUrl, forceClear) {
     el.style.backgroundAttachment = '';
   }
 }
+function applyHeroBg(bgUrl, forceClear) {
+  var el = document.querySelector('.hero');
+  if (!el) return;
+  if (bgUrl) {
+    el.style.backgroundImage = 'url(' + bgUrl + ')';
+    el.classList.add('has-hero-bg');
+  } else if (forceClear) {
+    el.style.backgroundImage = '';
+    el.classList.remove('has-hero-bg');
+  }
+}
 var bgPendingPage = '';
 function pickBgImage(page) {
   bgPendingPage = page;
@@ -2042,6 +2073,7 @@ function onBgFileSelected(e) {
     saveData('ft_config', config);
     updateBgThumb(bgPendingPage);
     applyPageBg(bgPendingPage, ev.target.result);
+    if (bgPendingPage === 'hero') applyHeroBg(ev.target.result);
     bgPendingPage = '';
     e.target.value = '';
   };
@@ -2053,6 +2085,7 @@ function clearBgImage(page) {
   saveData('ft_config', config);
   updateBgThumb(page);
   applyPageBg(page, '', true);
+  if (page === 'hero') applyHeroBg('', true);
 }
 function updateBgThumb(page) {
   var cap = page.charAt(0).toUpperCase() + page.slice(1);
@@ -2085,6 +2118,7 @@ function applyConfig() {
     if (!config.bgTree && cc.bgTree) config.bgTree = cc.bgTree;
     if (!config.bgMembers && cc.bgMembers) config.bgMembers = cc.bgMembers;
     if (!config.bgStories && cc.bgStories) config.bgStories = cc.bgStories;
+    if (!config.bgHero && cc.bgHero) config.bgHero = cc.bgHero;
   }
   if(config.title) { document.getElementById('hero-title').textContent=config.title; document.getElementById('nav-title').textContent='🏮 '+config.title; document.title=config.title; }
   if(config.sub) document.getElementById('hero-sub').textContent=config.sub;
@@ -2095,6 +2129,8 @@ function applyConfig() {
   applyPageBg('tree', config.bgTree);
   applyPageBg('members', config.bgMembers);
   applyPageBg('stories', config.bgStories);
+  updateBgThumb('hero');
+  applyHeroBg(config.bgHero);
 }
 function updateHomeStats() {
   document.getElementById('stat-members').textContent=members.length;
