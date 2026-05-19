@@ -1,4 +1,4 @@
-import re, base64, os, sys
+import re, base64, os, sys, json
 from PIL import Image
 from io import BytesIO
 
@@ -11,6 +11,31 @@ with open(html_path, 'r', encoding='utf-8') as f:
     html = f.read()
 
 orig_size = len(html.encode('utf-8'))
+
+# Step 0: Clean up duplicate __CUSTOM_SPLASH__ script tags from previous exports.
+# Each export injects a new script tag; keep only the first (which has CONFIG too)
+# and merge all splash slides into one array.
+splash_scripts = list(re.finditer(r'<script>window\.__CUSTOM_SPLASH__=(\[[\s\S]*?\]);(?:window\.__CUSTOM_CONFIG__=.*?;localStorage\.setItem\("ft_config".*?;delete localStorage\.ft_data_version;)?</script>', html))
+if len(splash_scripts) > 1:
+    all_slides = []
+    config_part = ''
+    for m in splash_scripts:
+        try:
+            slides = json.loads(m.group(1))
+            if isinstance(slides, list):
+                all_slides.extend(slides)
+        except Exception:
+            pass
+        # Capture the CONFIG + localStorage part from the first match
+        if not config_part and 'window.__CUSTOM_CONFIG__' in m.group(0):
+            config_part = m.group(0)[m.group(0).index(';window.__CUSTOM_CONFIG__'):]
+    if all_slides:
+        # Remove all old tags
+        for m in splash_scripts:
+            html = html.replace(m.group(0), '')
+        # Insert the merged one after </title>
+        new_tag = '<script>window.__CUSTOM_SPLASH__=' + json.dumps(all_slides, ensure_ascii=False) + config_part + '</script>'
+        html = html.replace('</title>', '</title>\n' + new_tag)
 
 # Step 1: Extract all base64 images, convert PNG to JPEG
 pattern = re.compile(r'data:image/([a-z]+);base64,([A-Za-z0-9+/=]+)')
