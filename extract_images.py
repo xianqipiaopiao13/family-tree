@@ -10,14 +10,15 @@ os.makedirs(out_dir, exist_ok=True)
 with open(html_path, 'r', encoding='utf-8') as f:
     html = f.read()
 
-# Find all data:image/... base64 URIs
-pattern = re.compile(r'data:image/([a-z]+);base64,([A-Za-z0-9+/=]+)')
+orig_size = len(html.encode('utf-8'))
 
+# Step 1: Extract all base64 images, convert PNG to JPEG
+pattern = re.compile(r'data:image/([a-z]+);base64,([A-Za-z0-9+/=]+)')
 count = 0
 
 def replace_match(m):
     global count
-    fmt = m.group(1)  # jpeg, png, etc.
+    fmt = m.group(1)
     b64 = m.group(2)
     try:
         data = base64.b64decode(b64)
@@ -30,7 +31,6 @@ def replace_match(m):
 
     try:
         if fmt == 'png':
-            # Convert PNG to JPEG for smaller size
             img = Image.open(BytesIO(data))
             if img.mode in ('RGBA', 'P', 'LA'):
                 bg = Image.new('RGB', img.size, (255, 255, 255))
@@ -46,7 +46,6 @@ def replace_match(m):
                 img = img.convert('RGB')
             img.save(fpath, 'JPEG', quality=80, optimize=True)
         else:
-            # JPEG: save as-is
             with open(fpath, 'wb') as f:
                 f.write(data)
         count += 1
@@ -57,14 +56,16 @@ def replace_match(m):
 
 html = pattern.sub(replace_match, html)
 
-out_path = html_path + '.light.html'
-with open(out_path, 'w', encoding='utf-8') as f:
+# Step 2: Add lazy loading to all img tags
+html = html.replace('<img ', '<img loading="lazy" decoding="async" ')
+
+# Step 3: Write output, replacing the original file
+with open(html_path, 'w', encoding='utf-8') as f:
     f.write(html)
 
-orig_size = os.path.getsize(html_path)
-new_size = os.path.getsize(out_path)
+new_size = os.path.getsize(html_path)
 print(f'Extracted {count} images to {out_dir}/ (all JPEG, optimized)')
 print(f'Original: {orig_size/1024/1024:.1f}MB')
 print(f'New HTML: {new_size/1024/1024:.4f}MB ({new_size/1024:.1f}KB)')
 print(f'Reduction: {(orig_size-new_size)/1024/1024:.1f}MB')
-print(f'Output: {out_path}')
+print(f'Added loading="lazy" to all img tags')
