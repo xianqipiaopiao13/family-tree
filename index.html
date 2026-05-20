@@ -531,10 +531,10 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
 </div>
 
 <div class="tab-bar">
-  <button class="tab-item" data-page="home" onclick="showPage('home')">
+  <button class="tab-item active" data-page="home" onclick="showPage('home')">
     <span class="tab-icon">🏠</span>首页
   </button>
-  <button class="tab-item active" data-page="tree" onclick="showPage('tree')">
+  <button class="tab-item" data-page="tree" onclick="showPage('tree')">
     <span class="tab-icon">🌳</span>族谱树
   </button>
   <button class="tab-item" data-page="members" onclick="showPage('members')">
@@ -546,7 +546,7 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
 </div>
 
 <!-- HOME -->
-<div id="page-home" style="background-image:url('https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/images/img_028.jpg');background-size:cover;background-position:center" style="background-image: url(&quot;https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/images/img_029.jpg&quot;); background-size: cover; background-position: center center; background-attachment: scroll;" class="page">
+<div id="page-home" class="page active" style="background-image:url('https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/images/img_028.jpg');background-size:cover;background-position:center">
   <div class="hero has-hero-bg" style="background-image: url(&quot;https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/images/img_030.jpg&quot;);">
     <div class="hero-title" id="hero-title">朱氏三厢房家族族谱</div>
     <div class="hero-sub" id="hero-sub">薪火相传 · 血脉相连 · 家和万事兴</div>
@@ -636,7 +636,7 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
 </div>
 
 <!-- TREE -->
-<div id="page-tree" style="background-image:url('https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/images/img_035.jpg');background-size:cover;background-position:center" style="background-image: url(&quot;https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/images/img_036.jpg&quot;); background-size: cover; background-position: center center; background-attachment: scroll;" class="page active">
+<div id="page-tree" style="background-image:url('https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/images/img_035.jpg');background-size:cover;background-position:center" class="page">
   <div class="admin-panel" id="tree-admin-panel">
     <div class="admin-panel-title">⚙️ 族谱树管理</div>
     <div style="font-size:.85rem;color:var(--text-light);margin-bottom:10px">
