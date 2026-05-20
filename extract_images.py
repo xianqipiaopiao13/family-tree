@@ -6,14 +6,6 @@ html_path = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
 out_dir = sys.argv[2] if len(sys.argv) > 2 else 'images'
 MAX_SIZE = 1600  # max width/height in pixels
 JPEG_QUALITY = 60
-import subprocess, tempfile
-def _get_git_sha():
-    try:
-        sha = subprocess.check_output(['git','rev-parse','--short','HEAD'], cwd=os.path.dirname(os.path.abspath(__file__)), stderr=subprocess.DEVNULL).decode().strip()
-        if sha: return sha
-    except: pass
-    return 'master'
-CDN_BASE = 'https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@' + _get_git_sha() + '/'
 
 os.makedirs(out_dir, exist_ok=True)
 
@@ -79,8 +71,8 @@ html = pattern.sub(replace_match, html)
 # Step 2: Add lazy loading to all img tags
 html = html.replace('<img ', '<img loading="lazy" decoding="async" ')
 
-# Step 3: Convert all local images/ paths to CDN
-html = html.replace('images/', CDN_BASE + 'images/')
+# Step 3: Keep relative paths (GitHub Pages serves images from same domain)
+# No CDN conversion needed - avoids WeChat/GFW blocking external CDNs
 
 # Step 4: Write output, replacing the original file
 with open(html_path, 'w', encoding='utf-8') as f:
