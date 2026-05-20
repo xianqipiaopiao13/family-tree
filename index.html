@@ -1312,9 +1312,6 @@ function exportFullHTML() {
       html = html.replace('IS_STANDALONE = true', 'IS_STANDALONE = true');
       // Inject custom splash data via a reliable script tag override
       html = injectPageBgStyles(html, c ? JSON.parse(c) : {});
-      // Clean old tags to prevent duplicate accumulation
-      html = html.replace(/<script>window\.__CUSTOM_SPLASH__[\s\S]*?<\/script>/g, '');
-      html = html.replace(/<script>window\.__CUSTOM_CONFIG__[\s\S]*?<\/script>/g, '');
       html = html.replace('</title>', '</title>\n<script>window.__CUSTOM_SPLASH__=' + splashJSON + ';window.__CUSTOM_CONFIG__=' + configJSON + ';localStorage.setItem("ft_config",JSON.stringify(window.__CUSTOM_CONFIG__));</scr' + 'ipt>');
       downloadExportedFile(html);
       return;
@@ -1341,9 +1338,6 @@ function exportFullHTML() {
     html = html.replace('IS_STANDALONE = true', 'IS_STANDALONE = true');
     // Inject custom splash data via a reliable script tag override
     html = injectPageBgStyles(html, c ? JSON.parse(c) : {});
-    // Clean old tags to prevent duplicate accumulation
-      html = html.replace(/<script>window\.__CUSTOM_SPLASH__[\s\S]*?<\/script>/g, '');
-      html = html.replace(/<script>window\.__CUSTOM_CONFIG__[\s\S]*?<\/script>/g, '');
       html = html.replace('</title>', '</title>\n<script>window.__CUSTOM_SPLASH__=' + splashJSON + ';window.__CUSTOM_CONFIG__=' + configJSON + ';localStorage.setItem("ft_config",JSON.stringify(window.__CUSTOM_CONFIG__));</scr' + 'ipt>');
     html = '<!DOCTYPE html>\n' + html;
     downloadExportedFile(html);
