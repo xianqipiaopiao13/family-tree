@@ -6,7 +6,14 @@ html_path = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
 out_dir = sys.argv[2] if len(sys.argv) > 2 else 'images'
 MAX_SIZE = 1600  # max width/height in pixels
 JPEG_QUALITY = 60
-CDN_BASE = 'https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/'
+import subprocess, tempfile
+def _get_git_sha():
+    try:
+        sha = subprocess.check_output(['git','rev-parse','--short','HEAD'], cwd=os.path.dirname(os.path.abspath(__file__)), stderr=subprocess.DEVNULL).decode().strip()
+        if sha: return sha
+    except: pass
+    return 'master'
+CDN_BASE = 'https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@' + _get_git_sha() + '/'
 
 os.makedirs(out_dir, exist_ok=True)
 
