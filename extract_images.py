@@ -6,6 +6,7 @@ html_path = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
 out_dir = sys.argv[2] if len(sys.argv) > 2 else 'images'
 MAX_SIZE = 1600  # max width/height in pixels
 JPEG_QUALITY = 60
+CDN_BASE = 'https://cdn.jsdelivr.net/gh/xianqipiaopiao13/family-tree@master/'
 
 os.makedirs(out_dir, exist_ok=True)
 
@@ -71,7 +72,10 @@ html = pattern.sub(replace_match, html)
 # Step 2: Add lazy loading to all img tags
 html = html.replace('<img ', '<img loading="lazy" decoding="async" ')
 
-# Step 3: Write output, replacing the original file
+# Step 3: Convert all local images/ paths to CDN
+html = html.replace('images/', CDN_BASE + 'images/')
+
+# Step 4: Write output, replacing the original file
 with open(html_path, 'w', encoding='utf-8') as f:
     f.write(html)
 
