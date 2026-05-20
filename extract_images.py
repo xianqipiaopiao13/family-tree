@@ -4,6 +4,8 @@ from io import BytesIO
 
 html_path = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
 out_dir = sys.argv[2] if len(sys.argv) > 2 else 'images'
+MAX_SIZE = 1600  # max width/height in pixels
+JPEG_QUALITY = 60
 
 os.makedirs(out_dir, exist_ok=True)
 
@@ -12,7 +14,14 @@ with open(html_path, 'r', encoding='utf-8') as f:
 
 orig_size = len(html.encode('utf-8'))
 
-# Step 1: Extract all base64 images, convert PNG to JPEG
+def resize_img(img):
+    w, h = img.size
+    if w <= MAX_SIZE and h <= MAX_SIZE:
+        return img
+    ratio = min(MAX_SIZE / w, MAX_SIZE / h)
+    return img.resize((int(w * ratio), int(h * ratio)), Image.LANCZOS)
+
+# Step 1: Extract all base64 images, convert to JPEG
 pattern = re.compile(r'data:image/([a-z]+);base64,([A-Za-z0-9+/=]+)')
 count = 0
 
@@ -28,26 +37,29 @@ def replace_match(m):
 
     fname = f'img_{count:03d}.jpg'
     fpath = os.path.join(out_dir, fname)
+    quality = JPEG_QUALITY
 
     try:
+        img = Image.open(BytesIO(data))
+        if img.mode in ('RGBA', 'P', 'LA', 'PA'):
+            bg = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'RGBA':
+                bg.paste(img, mask=img.split()[3])
+            elif img.mode == 'P':
+                img = img.convert('RGBA')
+                bg.paste(img, mask=img.split()[3])
+            elif img.mode == 'PA':
+                bg.paste(img, mask=img.split()[3])
+            else:
+                bg.paste(img)
+            img = bg
+        elif img.mode != 'RGB':
+            img = img.convert('RGB')
+        img = resize_img(img)
+        # PNG originals may need higher quality for text/line art
         if fmt == 'png':
-            img = Image.open(BytesIO(data))
-            if img.mode in ('RGBA', 'P', 'LA'):
-                bg = Image.new('RGB', img.size, (255, 255, 255))
-                if img.mode == 'RGBA':
-                    bg.paste(img, mask=img.split()[3])
-                elif img.mode == 'P':
-                    img = img.convert('RGBA')
-                    bg.paste(img, mask=img.split()[3])
-                else:
-                    bg.paste(img)
-                img = bg
-            elif img.mode != 'RGB':
-                img = img.convert('RGB')
-            img.save(fpath, 'JPEG', quality=80, optimize=True)
-        else:
-            with open(fpath, 'wb') as f:
-                f.write(data)
+            quality = 70
+        img.save(fpath, 'JPEG', quality=quality, optimize=True)
         count += 1
         return f'images/{fname}'
     except Exception as e:
