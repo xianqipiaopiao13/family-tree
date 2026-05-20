@@ -6,7 +6,7 @@ html_path = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
 out_dir = sys.argv[2] if len(sys.argv) > 2 else 'images'
 MAX_SIZE = 1600  # max width/height in pixels
 JPEG_QUALITY = 60
-CDN_BASE = 'https://cdn.jsdelivr.net/gh/xianqipiaopiao13/family-tree@master/'
+CDN_BASE = 'https://cdn.jsdelivr.net/gh/zhushisanxiangfangfamily/family-tree@master/'
 
 os.makedirs(out_dir, exist_ok=True)
 
