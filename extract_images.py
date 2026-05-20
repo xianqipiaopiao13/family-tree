@@ -12,15 +12,6 @@ with open(html_path, 'r', encoding='utf-8') as f:
 
 orig_size = len(html.encode('utf-8'))
 
-# Step 0: Remove duplicate __CUSTOM_SPLASH__ script tags from previous exports.
-# Each export injects a new script tag; keep only the first (which also has CONFIG).
-splash_pattern = r'<script>window\.__CUSTOM_SPLASH__=[\s\S]*?</script>'
-splash_matches = list(re.finditer(splash_pattern, html))
-if len(splash_matches) > 1:
-    # Keep only the first match, remove the rest
-    for m in reversed(splash_matches[1:]):
-        html = html[:m.start()] + html[m.end():]
-
 # Step 1: Extract all base64 images, convert PNG to JPEG
 pattern = re.compile(r'data:image/([a-z]+);base64,([A-Za-z0-9+/=]+)')
 count = 0
