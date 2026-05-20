@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -610,6 +610,7 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
     <div class="form-group"><label class="form-label">家族寄语（正文）</label>
       <textarea class="form-textarea" id="cfg-motto" rows="3"></textarea></div>
     <button class="btn btn-primary" onclick="saveConfig()">保存设置</button>
+    <button class="btn btn-primary btn-sm" onclick="exportFullHTML()" style="background:#e67e22;margin-top:8px;width:100%">📥 导出完整族谱</button>
   </div>
   <div class="section-title">家族寄语</div>
   <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:16px;line-height:2;color:var(--text-light);font-size:.88rem;box-shadow:0 1px 3px rgba(0,0,0,.06)">
@@ -645,7 +646,6 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
     <div class="admin-actions">
       <button class="btn btn-primary btn-sm" onclick="openMemberForm(null,null,'child')">＋ 添加始祖</button>
       <button class="btn btn-accent btn-sm" onclick="renderTree()">刷新族谱树</button>
-      <button class="btn btn-primary btn-sm" onclick="exportFullHTML()" style="background:#e67e22">📥 导出完整族谱</button>
 <button class="btn btn-ghost btn-sm" onclick="clearCache()" style="color:#c0392b">🗑 清除缓存</button>
     </div>
   </div>
