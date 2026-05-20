@@ -1239,7 +1239,7 @@ function loadData() {
     // Compute version from actual embedded data — any data change = new version = auto-clear
     var dataVer = "v3_" + hashStr(JSON.stringify(defaultMembers));
     var storedVer = localStorage.getItem('ft_data_version');
-    if (storedVer && storedVer !== dataVer) {
+    if (storedVer !== dataVer) {
       localStorage.removeItem('ft_members');
       localStorage.removeItem('ft_stories');
     }
@@ -1314,7 +1314,7 @@ function exportFullHTML() {
       // Clean old tags to prevent duplicate accumulation
       html = html.replace(/<script>window\.__CUSTOM_SPLASH__[\s\S]*?<\/script>/g, '');
       html = html.replace(/<script>window\.__CUSTOM_CONFIG__[\s\S]*?<\/script>/g, '');
-      html = html.replace('</title>', '</title>\n<script>window.__CUSTOM_SPLASH__=' + splashJSON + ';window.__CUSTOM_CONFIG__=' + configJSON + ';localStorage.setItem("ft_config",JSON.stringify(window.__CUSTOM_CONFIG__));delete localStorage.ft_data_version;</scr' + 'ipt>');
+      html = html.replace('</title>', '</title>\n<script>window.__CUSTOM_SPLASH__=' + splashJSON + ';window.__CUSTOM_CONFIG__=' + configJSON + ';localStorage.setItem("ft_config",JSON.stringify(window.__CUSTOM_CONFIG__));</scr' + 'ipt>');
       downloadExportedFile(html);
       return;
     }
@@ -1343,7 +1343,7 @@ function exportFullHTML() {
     // Clean old tags to prevent duplicate accumulation
       html = html.replace(/<script>window\.__CUSTOM_SPLASH__[\s\S]*?<\/script>/g, '');
       html = html.replace(/<script>window\.__CUSTOM_CONFIG__[\s\S]*?<\/script>/g, '');
-      html = html.replace('</title>', '</title>\n<script>window.__CUSTOM_SPLASH__=' + splashJSON + ';window.__CUSTOM_CONFIG__=' + configJSON + ';localStorage.setItem("ft_config",JSON.stringify(window.__CUSTOM_CONFIG__));delete localStorage.ft_data_version;</scr' + 'ipt>');
+      html = html.replace('</title>', '</title>\n<script>window.__CUSTOM_SPLASH__=' + splashJSON + ';window.__CUSTOM_CONFIG__=' + configJSON + ';localStorage.setItem("ft_config",JSON.stringify(window.__CUSTOM_CONFIG__));</scr' + 'ipt>');
     html = '<!DOCTYPE html>\n' + html;
     downloadExportedFile(html);
   } catch(e) {
