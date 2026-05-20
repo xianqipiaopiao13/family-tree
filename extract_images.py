@@ -23,7 +23,16 @@ def resize_img(img):
 
 # Step 1: Extract all base64 images, convert to JPEG
 pattern = re.compile(r'data:image/([a-z]+);base64,([A-Za-z0-9+/=]+)')
-count = 0
+
+# Find next available image number (avoid overwriting existing images)
+next_idx = 0
+if os.path.isdir(out_dir):
+    existing = [f for f in os.listdir(out_dir) if f.startswith('img_') and f.endswith('.jpg')]
+    if existing:
+        nums = [int(re.search(r'img_(\d+)', f).group(1)) for f in existing]
+        next_idx = max(nums) + 1
+print(f'Starting image index from {next_idx} (existing images preserved)')
+count = next_idx
 
 def replace_match(m):
     global count
