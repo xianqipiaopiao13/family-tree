@@ -773,7 +773,9 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
     <div class="modal-row" id="m-kinship-row" style="display:none"><span class="modal-label">关系</span><span class="modal-value" id="m-kinship" style="color:var(--accent);font-weight:bold"></span></div>
     <div class="modal-divider" id="m-kinship-divider" style="display:none"></div>
     <div class="modal-row"><span class="modal-label">性别</span><span class="modal-value" id="m-gender">男</span></div>
-    <div class="modal-row"><span class="modal-label">出生日期</span><span class="modal-value" id="m-birth">2003年10月13日</span></div>
+    <div class="modal-row"><span class="modal-label">生于</span><span class="modal-value" id="m-birth">2003年10月13日</span></div>
+    <div class="modal-row" id="m-death-row" style="display:none"><span class="modal-label">卒于</span><span class="modal-value" id="m-death">—</span></div>
+    <div class="modal-row" id="m-age-row" style="display:none"><span class="modal-label">享年</span><span class="modal-value" id="m-age">—</span></div>
     <div class="modal-row"><span class="modal-label">籍贯</span><span class="modal-value" id="m-origin">福建省</span></div>
     <div class="modal-row"><span class="modal-label">职业</span><span class="modal-value" id="m-job">军人</span></div>
     <div class="modal-row"><span class="modal-label">简介</span><span class="modal-value" id="m-bio">—</span></div>
@@ -840,6 +842,20 @@ s.addEventListener("click",function(e){if(f){f=false;return;}h(e)});
     </div>
     <div class="form-group"><label class="form-label">职业</label>
       <input class="form-input" id="mf-job" placeholder="例：教师"></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">去世日期 <span style="color:var(--text-light);font-size:.75rem">（选填）</span></label>
+        <div style="display:flex;gap:4px;align-items:center">
+          <input class="form-input" id="mf-death-year" placeholder="年" style="flex:1" type="number" min="1000" max="2026" inputmode="numeric">
+          <span style="color:var(--text-light);font-size:.8rem">年</span>
+          <select class="form-select" id="mf-death-month" style="flex:0.8">
+            <option value="">月</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option></select>
+          <span style="color:var(--text-light);font-size:.8rem">月</span>
+          <select class="form-select" id="mf-death-day" style="flex:0.8"><option value="">日</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select>
+          <span style="color:var(--text-light);font-size:.8rem">日</span>
+        </div></div>
+      <div class="form-group"></div>
+    </div>
     <div class="form-group" id="mf-parent-group" style="display:none">
       <label class="form-label">父/母节点（所属上一世）</label>
       <select class="form-select" id="mf-parent-select"></select>
@@ -1500,6 +1516,61 @@ function validateBirth(parentYear) {
     }
   }
   return null;
+}
+
+// ===== DEATH DATE HELPERS =====
+function parseDeathDate(death) {
+  if (!death) return {year:'', month:'', day:''};
+  var m = death.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (m) return {year:m[1], month:m[2], day:m[3]};
+  m = death.match(/^(\d{4})年/);
+  if (m) return {year:m[1], month:'', day:''};
+  m = death.match(/^(\d{4})/);
+  if (m) return {year:m[1], month:'', day:''};
+  return {year:death, month:'', day:''};
+}
+function formatDeath(death) {
+  if (!death) return '';
+  var d = parseDeathDate(death);
+  if (d.year && d.month && d.day) return d.year + '年' + d.month + '月' + d.day + '日';
+  if (d.year) return d.year + '年';
+  return death;
+}
+function setDeathFields(death) {
+  var d = parseDeathDate(death);
+  document.getElementById('mf-death-year').value = d.year;
+  if (d.month) {
+    document.getElementById('mf-death-month').value = parseInt(d.month);
+  } else {
+    document.getElementById('mf-death-month').value = '';
+  }
+  if (d.day) {
+    document.getElementById('mf-death-day').value = parseInt(d.day);
+  } else {
+    document.getElementById('mf-death-day').value = '';
+  }
+}
+function getDeathValue() {
+  var y = document.getElementById('mf-death-year').value.trim();
+  var m = document.getElementById('mf-death-month').value;
+  var d = document.getElementById('mf-death-day').value;
+  if (!y) return '';
+  if (m && d) return y + '-' + m.padStart(2,'0') + '-' + d.padStart(2,'0');
+  if (m) return y + '-' + m.padStart(2,'0');
+  return y;
+}
+function calcAge(birth, death) {
+  if (!birth || !death) return '';
+  var b = parseBirthDate(birth);
+  var d = parseDeathDate(death);
+  if (!b.year || !d.year) return '';
+  var age = parseInt(d.year) - parseInt(b.year);
+  if (age < 0) return '';
+  if (d.month && b.month) {
+    if (parseInt(d.month) < parseInt(b.month)) age--;
+    else if (parseInt(d.month) === parseInt(b.month) && d.day && b.day && parseInt(d.day) < parseInt(b.day)) age--;
+  }
+  return age + '岁';
 }
 
 // ===== KINSHIP ENGINE =====
@@ -2802,6 +2873,23 @@ function openMemberDetail(id) {
   document.getElementById('m-gen').textContent=genLabel;
   document.getElementById('m-gender').textContent=m.gender||'—';
   document.getElementById('m-birth').textContent=formatBirth(m.birth);
+  // Death date and age
+  var deathRow = document.getElementById('m-death-row');
+  var ageRow = document.getElementById('m-age-row');
+  if (m.death) {
+    document.getElementById('m-death').textContent = formatDeath(m.death);
+    deathRow.style.display = 'flex';
+    var ageText = calcAge(m.birth, m.death);
+    if (ageText) {
+      document.getElementById('m-age').textContent = ageText;
+      ageRow.style.display = 'flex';
+    } else {
+      ageRow.style.display = 'none';
+    }
+  } else {
+    deathRow.style.display = 'none';
+    ageRow.style.display = 'none';
+  }
   document.getElementById('m-origin').textContent=m.origin||'—';
   document.getElementById('m-job').textContent=m.job||'—';
   document.getElementById('m-bio').textContent=m.bio||'—';
@@ -2877,6 +2965,7 @@ function openMemberForm(id, parentId, type) {
     document.getElementById('mf-name').value=m.name;
     document.getElementById('mf-gender').value=m.gender||'男';
     setBirthFields(m.birth);
+    setDeathFields(m.death||'');
     document.getElementById('mf-origin').value=m.origin||'';
     document.getElementById('mf-job').value=m.job||'';
     document.getElementById('mf-bio').value=m.bio||'';
@@ -2887,6 +2976,7 @@ function openMemberForm(id, parentId, type) {
     document.getElementById('mf-name').value='';
     document.getElementById('mf-gender').value='女';
     setBirthFields('');
+    setDeathFields('');
     document.getElementById('mf-origin').value='';
     document.getElementById('mf-job').value='';
     document.getElementById('mf-bio').value='';
@@ -2897,6 +2987,7 @@ function openMemberForm(id, parentId, type) {
     document.getElementById('mf-name').value='';
     document.getElementById('mf-gender').value='男';
     setBirthFields('');
+    setDeathFields('');
     document.getElementById('mf-origin').value='';
     document.getElementById('mf-job').value='';
     document.getElementById('mf-bio').value='';
@@ -2954,6 +3045,7 @@ function saveMember() {
         origin: document.getElementById('mf-origin').value,
         job: document.getElementById('mf-job').value,
         bio: document.getElementById('mf-bio').value,
+        death: getDeathValue(),
         photo
       };
     }
@@ -2970,6 +3062,7 @@ function saveMember() {
       origin: document.getElementById('mf-origin').value,
       job: document.getElementById('mf-job').value,
       bio: document.getElementById('mf-bio').value,
+      death: getDeathValue(),
       photo,
       parentId: null,
       spouseOfId
@@ -2989,6 +3082,7 @@ function saveMember() {
       origin: document.getElementById('mf-origin').value,
       job: document.getElementById('mf-job').value,
       bio: document.getElementById('mf-bio').value,
+      death: getDeathValue(),
       photo,
       parentId: parentId || null,
       spouseOfId: null
