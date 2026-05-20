@@ -1258,7 +1258,7 @@ function loadData() {
   } catch(e) { return {members:defaultMembers,stories:defaultStories,config: window.__CUSTOM_CONFIG__ || {}}; }
 }
 function saveData(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { showToast('保存失败：存储空间已满。请删除部分照片后重试。', 'error'); }
 }
 
 function injectPageBgStyles(html, configObj) {
@@ -2121,18 +2121,17 @@ function pickBgImage(page) {
 function onBgFileSelected(e) {
   if (!e.target.files || !e.target.files[0]) return;
   var file = e.target.files[0];
-  var reader = new FileReader();
-  reader.onload = function(ev) {
+  var cb = function(dataUrl) {
     var cap = bgPendingPage.charAt(0).toUpperCase() + bgPendingPage.slice(1);
-    config['bg' + cap] = ev.target.result;
+    config['bg' + cap] = dataUrl;
     saveData('ft_config', config);
     updateBgThumb(bgPendingPage);
-    applyPageBg(bgPendingPage, ev.target.result);
-    if (bgPendingPage === 'hero') applyHeroBg(ev.target.result);
+    applyPageBg(bgPendingPage, dataUrl);
+    if (bgPendingPage === 'hero') applyHeroBg(dataUrl);
     bgPendingPage = '';
     e.target.value = '';
   };
-  reader.readAsDataURL(file);
+  compressBgImage(file, cb);
 }
 function clearBgImage(page) {
   var cap = page.charAt(0).toUpperCase() + page.slice(1);
@@ -3127,13 +3126,51 @@ function setPhotoPreview(src) {
     document.getElementById('mf-photo-input').value = '';
   }
 }
+function compressBgImage(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var maxW = 800, maxH = 800;
+      var w = img.width, h = img.height;
+      if (w <= maxW && h <= maxH) { callback(e.target.result); return; }
+      var ratio = Math.min(maxW / w, maxH / h);
+      var cw = Math.round(w * ratio), ch = Math.round(h * ratio);
+      var canvas = document.createElement('canvas');
+      canvas.width = cw; canvas.height = ch;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, cw, ch);
+      callback(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function compressImage(file, callback) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var maxW = 400, maxH = 400;
+      var w = img.width, h = img.height;
+      if (w <= maxW && h <= maxH) { callback(e.target.result); return; }
+      var ratio = Math.min(maxW / w, maxH / h);
+      var cw = Math.round(w * ratio), ch = Math.round(h * ratio);
+      var canvas = document.createElement('canvas');
+      canvas.width = cw; canvas.height = ch;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, cw, ch);
+      callback(canvas.toDataURL('image/jpeg', 0.5));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 function handlePhotoUpload(e) {
   const file = e.target.files[0];
   if(!file) return;
   if(file.size > 2*1024*1024) { showToast('图片不能超过 2MB','error'); return; }
-  const reader = new FileReader();
-  reader.onload = ev => setPhotoPreview(ev.target.result);
-  reader.readAsDataURL(file);
+  compressImage(file, function(compressed) { setPhotoPreview(compressed); });
 }
 function removePhoto() { setPhotoPreview(null); }
 
@@ -3159,9 +3196,7 @@ function handleStoryPhotoUpload(e) {
   const file = e.target.files[0];
   if(!file) return;
   if(file.size > 2*1024*1024) { showToast('图片不能超过 2MB','error'); return; }
-  const reader = new FileReader();
-  reader.onload = ev => setStoryPhotoPreview(ev.target.result);
-  reader.readAsDataURL(file);
+  compressImage(file, function(compressed) { setStoryPhotoPreview(compressed); });
 }
 function removeStoryPhoto() { setStoryPhotoPreview(null); }
 
@@ -3187,9 +3222,7 @@ function handleSplashPhotoUpload(e) {
   const file = e.target.files[0];
   if(!file) return;
   if(file.size > 20*1024*1024) { showToast('图片不能超过 20MB','error'); return; }
-  const reader = new FileReader();
-  reader.onload = ev => setSplashPhotoPreview(ev.target.result);
-  reader.readAsDataURL(file);
+  compressImage(file, function(compressed) { setSplashPhotoPreview(compressed); });
 }
 function removeSplashPhoto() { setSplashPhotoPreview(null); }
 
@@ -3367,24 +3400,21 @@ function handleAlbumUpload(e) {
   let loaded = 0;
   files.forEach(file => {
     if(file.size > 5 * 1024 * 1024) { showToast('单张图片不能超过 5MB', 'error'); return; }
-    const reader = new FileReader();
-    reader.onload = ev => {
+    compressImage(file, function(dataUrl) {
       const m = members.find(x => x.id === memberId);
       if(!m) return;
       if(!m.album) m.album = [];
-      m.album.push({ url: ev.target.result, caption: '' });
+      m.album.push({ url: dataUrl, caption: '' });
       loaded++;
       if(loaded === files.length) {
         saveData('ft_members', members);
         renderAlbumGrid(memberId);
         showToast('已添加 ' + loaded + ' 张照片', 'success');
       }
-    };
-    reader.readAsDataURL(file);
+    });
   });
   e.target.value = '';
 }
-
 function deleteAlbumPhoto(memberId, idx) {
   const m = members.find(x => x.id === memberId);
   if(!m || !m.album) return;
