@@ -6321,8 +6321,6 @@ var _onboardIdx = 0;
 
 function initOnboarding() {
   if (localStorage.getItem('ft_onboarding_done')) return;
-  var user = getCurrentUser();
-  if (user && user.memberId) return; // Logged in users skip onboarding
   setTimeout(function() { showOnboardStep(0); }, 800);
 }
 
