@@ -1,0 +1,16 @@
+{
+  "name": "朱氏三厢房家族族谱",
+  "short_name": "朱氏族谱",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F5F0E8",
+  "theme_color": "#4a3000",
+  "description": "朱氏三厢房家族族谱",
+  "icons": [
+    {
+      "src": "images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

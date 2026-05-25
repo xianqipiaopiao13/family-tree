@@ -1,0 +1,1 @@
+window._embeddedAccounts=[{"memberId":108,"memberName":"朱鸿","pin":"2001","isAdmin":false},{"memberId":107,"memberName":"朱俊","pin":"2002","isAdmin":false}];
