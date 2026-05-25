@@ -2376,6 +2376,7 @@ function loginWithPin(memberId, pin) {
     Android.setCurrentUser('' + user.memberId, user.memberName, user.sessionId);
   }
   showToast('欢迎，' + user.memberName + '！', 'success');
+	  setTimeout(function() { initOnboarding(); }, 1000);
 }
 
 function doLoginWithPin() {
@@ -5198,7 +5199,6 @@ var ab = document.getElementById('admin-btn');
 if (ab) { ab.textContent = '管理员登录'; ab.style.background = ''; ab.style.color = ''; }
 document.body.classList.remove('admin-mode');
 updateSelfDisplay();
-initOnboarding();
 updateHomeStats();
 renderMembers();
 refreshView();
