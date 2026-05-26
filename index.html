@@ -6172,7 +6172,7 @@ function renderChatMessages() {
       if (m.audioBase64) {
         audioSrc = 'data:' + mime + ';base64,' + m.audioBase64;
       } else if (m.voiceFile) {
-        audioSrc = 'https://raw.githubusercontent.com/' + window._ghDefaults.repo + '/' + window._ghDefaults.branch + '/' + m.voiceFile;
+        audioSrc = 'https://api.sxfzp.xyz/' + m.voiceFile;
       }
       contentHTML =
         '<div class="chat-voice-player" data-msg-id="' + m.id + '">' +
