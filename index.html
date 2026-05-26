@@ -3477,6 +3477,10 @@ function saveConfig() {
   renderMembers();
   syncMusicState();
   initGitHubSync();
+  // Pass token to Android native bridge for SharedPreferences persistence
+  if (config.ghToken && window.Android && typeof window.Android.setGhToken === 'function') {
+    Android.setGhToken(config.ghToken);
+  }
   showToast('设置已保存','success');
 }
 function setSelf(id) {
