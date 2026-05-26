@@ -1870,7 +1870,7 @@ function ghApiGet(path, cb) {
   }
   // XHR fallback
   var xhr = new XMLHttpRequest();
-  var apiUrl = 'https://api.sxfzp.xyz/data/' + path;
+  var apiUrl = 'https://api.sxfzp.xyz/' + path;
   xhr.open('GET', apiUrl, true);
   xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
   if (_ghEtag) xhr.setRequestHeader('If-None-Match', _ghEtag);
@@ -1948,7 +1948,7 @@ function ghApiPut(path, content, sha, cb) {
   }
   // XHR fallback
   var xhr = new XMLHttpRequest();
-  xhr.open('PUT', 'https://api.sxfzp.xyz/data/' + path + '?_=' + Date.now(), true);
+  xhr.open('PUT', 'https://api.sxfzp.xyz/' + path + '?_=' + Date.now(), true);
   xhr.setRequestHeader('Accept', 'application/vnd.github.v3+json');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.timeout = 20000;
