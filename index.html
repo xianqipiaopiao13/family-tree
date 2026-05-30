@@ -1515,7 +1515,7 @@ function hashStr(s) {
 function loadData() {
   try {
     // Compute version from actual embedded data — any data change = new version = auto-clear
-    var dataVer = "v6_" + hashStr(JSON.stringify(defaultMembers) + JSON.stringify(window.__CUSTOM_CONFIG__||{}));
+    var dataVer = "v6_" + hashStr(JSON.stringify(defaultMembers) + JSON.stringify(defaultStories) + JSON.stringify(window.__CUSTOM_CONFIG__||{}));
     var storedVer = localStorage.getItem('ft_data_version');
     if (storedVer !== dataVer) {
       // Preserve user settings (selfId, accounts) across version clear
